@@ -52,7 +52,7 @@ func (msr *MsgServiceRouter) SetCircuit(cb CircuitBreaker) {
 }
 
 // MsgServiceHandler defines a function type which handles Msg service message.
-type MsgServiceHandler = func(ctx context.Context, req sdk.Msg) (*sdk.Result, error)
+type MsgServiceHandler = func(ctx sdk.Context, req sdk.Msg) (*sdk.Result, error)
 
 // Handler returns the MsgServiceHandler for a given msg or nil if not found.
 func (msr *MsgServiceRouter) Handler(msg sdk.Msg) MsgServiceHandler {
