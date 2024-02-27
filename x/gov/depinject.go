@@ -13,6 +13,7 @@ import (
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/depinject/appconfig"
 	authtypes "cosmossdk.io/x/auth/types"
+	govclient "cosmossdk.io/x/gov/client"
 	"cosmossdk.io/x/gov/keeper"
 	govtypes "cosmossdk.io/x/gov/types"
 	"cosmossdk.io/x/gov/types/v1beta1"
@@ -36,11 +37,12 @@ func init() {
 type ModuleInputs struct {
 	depinject.In
 
-	Config           *modulev1.Module
-	Cdc              codec.Codec
-	Environment      appmodule.Environment
-	ModuleKey        depinject.OwnModuleKey
-	MsgServiceRouter baseapp.MessageRouter
+	Config                *modulev1.Module
+	Cdc                   codec.Codec
+	Environment           appmodule.Environment
+	ModuleKey             depinject.OwnModuleKey
+	MsgServiceRouter      baseapp.MessageRouter
+	LegacyProposalHandler []govclient.ProposalHandler `optional:"true"`
 
 	AccountKeeper govtypes.AccountKeeper
 	BankKeeper    govtypes.BankKeeper
@@ -67,6 +69,9 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 	if in.Config.MaxSummaryLen != 0 {
 		defaultConfig.MaxSummaryLen = in.Config.MaxSummaryLen
 	}
+	if in.LegacyProposalHandler == nil {
+		in.LegacyProposalHandler = []govclient.ProposalHandler{}
+	}
 
 	// default to governance authority if not provided
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
@@ -85,7 +90,7 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 		defaultConfig,
 		authority.String(),
 	)
-	m := NewAppModule(in.Cdc, k, in.AccountKeeper, in.BankKeeper, in.PoolKeeper)
+	m := NewAppModule(in.Cdc, k, in.AccountKeeper, in.BankKeeper, in.PoolKeeper, in.LegacyProposalHandler...)
 	hr := v1beta1.HandlerRoute{Handler: v1beta1.ProposalHandler, RouteKey: govtypes.RouterKey}
 
 	return ModuleOutputs{Module: m, Keeper: k, HandlerRoute: hr}
