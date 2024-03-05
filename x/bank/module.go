@@ -69,7 +69,7 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *r
 
 // GetTxCmd returns the root tx command for the bank module.
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	return cli.NewTxCmd()
+	return nil
 }
 
 // GetQueryCmd returns no root query command for the bank module.
@@ -95,7 +95,7 @@ type AppModule struct {
 
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
-	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
+	//types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 
 	m := keeper.NewMigrator(am.keeper.(keeper.BaseKeeper))
